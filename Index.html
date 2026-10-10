@@ -1,0 +1,63 @@
+<!DOCTYPE html> 
+<html lang="vi"> 
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Quản Lý Nhập Hàng & Giá Bán
+ </title> 
+ <style>
+ * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; } 
+body { background-color: #f4f6f9; padding: 20px; } .container { max-width: 950px; margin: 0 auto; background: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); } h2 { text-align: center; color: #333; margin-bottom: 20px; } .section-title { margin-top: 20px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #007bff; color: #007bff; font-size: 18px; } .form-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; } .input-box { display: flex; flex-direction: column; } .input-box label { font-size: 14px; margin-bottom: 5px; font-weight: bold; color: #555; } .input-box input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; } .btn-add { background-color: #28a745; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; margin-bottom: 20px; } .btn-add:hover { background-color: #218838; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { border: 1px solid #ddd; padding: 10px; text-align: center; } th { background-color: #007bff; color: white; } tr:nth-child(even) { background-color: #f9f9f9; } .btn-delete { background-color: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; } .btn-delete:hover { background-color: #c82333; }
+ </style> 
+ </head>
+ <body> <div class="container"> 
+<h2>QUẢN LÝ NHẬP HÀNG & GIÁ BÁN
+</h2>
+ <!-- FORM NHẬP HÀNG --> <h3 class="section-title">
+1. Nhập thông tin sản phẩm</h3> <form id="productForm"> <div class="form-group"> <div class="input-box">
+ <label>Tên sản phẩm (*)
+ </label>
+ <input type="text" id="productName" placeholder="Ví dụ: Áo thun" required> </div> <div class="input-box"> 
+ <label>Số lượng (*)
+ </label> 
+ <input type="number" id="quantity" min="1" value="1" required> </div> <div class="input-box"> 
+<label>Giá nhập VND (*)
+</label>
+ <input type="number" id="importPrice" min="0" placeholder="20000" required> </div> <div class="input-box"> 
+<label>% Lợi nhuận (*)
+</label> 
+<input type="number" id="profitMargin" min="0" value="20" required> </div> </div> <button type="submit" class="btn-add">
++ Thêm Vào Danh Sách</button> </form> 
+<!-- BẢNG HIỂN THỊ KẾT QUẢ --> <h3 class="section-title">
+2. Danh sách hàng đã nhập</h3> <table>
+ <thead> <tr> <th>STT</th> 
+<th>Tên sản phẩm</th> 
+<th>Số lượng</th> 
+<th>Giá nhập</th>
+ <th>Thành tiền nhập</th>
+ <th>Giá bán gợi ý</th> 
+<th>Thao tác</th>
+ </tr> 
+</thead> 
+<tbody id="inventoryList">
+ <!-- Dữ liệu sẽ tự động đẩy xuống đây --> 
+</tbody> 
+</table>
+ </div> 
+<script> let inventory = JSON.parse(localStorage.getItem("inventoryData")) || []; document.addEventListener("DOMContentLoaded", renderTable); function formatMoney(amount) { return new Intl.NumberFormat('vi-VN').format(amount) + " đ"; } 
+// Xử lý khi nhấn nút Thêm -->
+document.getElementById("productForm").addEventListener("submit", function(event) { event.preventDefault(); 
+// Chống tải lại trang-->
+ const name = document.getElementById("productName").value.trim(); const quantity = parseInt(document.getElementById("quantity").value); const importPrice = parseFloat(document.getElementById("importPrice").value); const profitMargin = parseFloat(document.getElementById("profitMargin").value); const totalImport = quantity * importPrice; const sellingPrice = importPrice + (importPrice * (profitMargin / 100)); const item = { id: Date.now(), name, quantity, importPrice, totalImport, sellingPrice }; inventory.push(item); localStorage.setItem("inventoryData", JSON.stringify(inventory)); renderTable(); 
+// Xóa thông tin đã nhập trên form -->
+document.getElementById("productName").value = ""; document.getElementById("quantity").value = "1"; document.getElementById("importPrice").value = ""; document.getElementById("productName").focus(); }); function deleteProduct(id) { if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) { inventory = inventory.filter(item => item.id !== id); localStorage.setItem("inventoryData", JSON.stringify(inventory)); renderTable(); } } function renderTable() { const tbody = document.getElementById("inventoryList"); tbody.innerHTML = ""; if (inventory.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="color: #777;">Chưa có sản phẩm nào. Hãy nhập thông tin phía trên và nhấn Thêm!</td></tr>`; return; } inventory.forEach((item, index) => { const row = document.createElement("tr"); row.innerHTML = ` <td>${index + 1}</td> <td style="text-align: left;"><b>${item.name}</b></td> <td>${item.quantity}</td> <td>${formatMoney(item.importPrice)}</td> <td>${formatMoney(item.totalImport)}</td> <td style="color: #28a745; font-weight: bold;">${formatMoney(item.sellingPrice)}</td> <td><button class="btn-delete" onclick="deleteProduct(${item.id})">Xóa</button></td> `; tbody.appendChild(row); }); } </script> </body> </html>
+
+
+
+
+
+
+
+
+
+
